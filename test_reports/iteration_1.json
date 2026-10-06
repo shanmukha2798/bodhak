@@ -1,0 +1,24 @@
+{
+  "summary": "Comprehensive backend + frontend testing for Bodhak. All 13 pytest cases pass (meta, instructor list/filters/sort, instructor detail, summary + cache, story creation + cache invalidation + 422 validation, dashboard, AI match, AI platform-search, leaderboard, create/update instructor). Frontend Playwright flows verified: hero + 24 instructor cards, AI match flow with 3 cards and match-source, profile page with header/score/rating-count/platforms/batches/AI summary/stories, share-your-story end-to-end (toast + rating count increments 6->7 + new story prepended + bodhak_score updates), nav segmented control to Teach and Platforms, Teach view-as-select switches profile+dashboard (dashboard-score/dashboard-stories/chart-by-platform/chart-trend all present), create-profile-button shows dashboard-new-hint, platform search returns ranked results with reasons, leaderboard with 25 rows, leaderboard-skill-select filters to 2 Kafka rows, shortlist add/persist-after-reload/remove works via localStorage, footer demo notice correct, Kafka filter + clear-filters-button works on learner page, no horizontal overflow at 390px mobile, score-how-calculated tooltip present.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_bodhak_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Minor: Backend tests leave a 'TEST_Instructor' row in Mongo (no teardown), causing the live instructor count to be 25 after first test run (expected 24 from seed). Consider adding a cleanup fixture that deletes TEST_ prefixed instructors/stories if a strict count is required for UI.",
+    "server.py uses deprecated @app.on_event('startup'/'shutdown') hooks (FastAPI prefers lifespan); works today but worth migrating.",
+    "Shortlist toggle button inside leaderboard table requires correct testids - verified they are present (shortlist-toggle-{id}, shortlist-item-{id}, shortlist-remove-{id}).",
+    "AI summary caching is correct: summary cleared via $unset on new story insert; verified end-to-end that story_count updates after invalidation."
+  ],
+  "updated_files": ["/app/backend/tests/test_bodhak_api.py"],
+  "success_rate": {"backend": "100% (13/13)", "frontend": "100% of covered flows"},
+  "test_credentials": "None (no auth)",
+  "seed_data_creation": "Backend tests created 1 'TEST_Instructor' (via POST /api/instructors) and 2 TEST_ stories on a seeded instructor during the run. Frontend test added 1 story (TEST_UIUser). These persist in the DB; the learner grid therefore shows 25 cards instead of the original 24. Not a bug - just a side effect of exercising write APIs.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Instructor count can be 24 + N (where N = number of TEST_* instructors persisted from prior test runs). AI endpoints (match, platform-search, summary) take 5-20s; always use >=45s timeouts. Shortlist uses localStorage. Shadcn Select pattern: click trigger -> wait 200-300ms -> click option by get_by_role('option', name=...). All data-testid selectors verified present and reliable."
+}
