@@ -1,0 +1,21 @@
+{
+  "summary": "Iteration 2 full-stack testing passed. Backend: 25/25 pytest cases pass including 7 new iter2 tests (domains list + NPTEL/Skill-Lync in /meta; domain filter counts for Civil=2, Mechanical=2, Electronics=1, Architecture=2, Biomedical=1, Management=3; Suresh Balakrishnan and Meenakshi Sundaram present in Civil; every seeded instructor has non-empty domain; total >=32; /ask returns {answer,source,story_count} with non-empty answer; /ask with <3 chars -> 422; pre-warmed summary endpoint returns in <2s; POST /api/instructors with domain='Civil' persists and shows up in domain=Civil filter). Frontend: wordmark bodhak-wordmark has computed font-size 26px/font-weight 700/color rgb(10,37,64); 8 domain pills present (all, software-data, civil, mechanical, electronics, architecture, biomedical, management); clicking domain-pill-civil shows 'Showing 2 instructors'; clear-filters-button resets to 'Showing 32 instructors'; compare-instructors-link navigates to /compare; compare-select-a/b render columns with compare-score, compare-skills, compare-batches, and URL contains ?a=&b=; empty state compare-empty-a and compare-empty-b visible before picking; copy-profile-link-button shows 'Profile link copied' toast; compare-from-profile-link href is /compare?a=<id> and renders column A with compare-empty-b; ask-section with ask-input + ask-submit-button -> ask-answer with non-empty text (~250 chars, source=ai); profile-domain-select has exactly 7 options matching expected list; footer-demo-notice visible on /, /teach, /platforms, /compare, and profile page.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_report_links": ["/app/backend/tests/test_bodhak_api.py", "/app/test_reports/pytest/pytest_results.xml"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "server.py still uses deprecated @app.on_event('startup'/'shutdown'); should migrate to lifespan context manager.",
+    "warm_summaries runs on every app startup via asyncio.create_task without any dedupe across pod restarts; harmless but will issue redundant LLM calls each time server reloads.",
+    "ensure_summary cache check uses story_count equality only; if a story is deleted and recreated it may skip regeneration. Not an issue today (no delete endpoint).",
+    "copyLink in ProfilePage silently falls back to toast() when clipboard is unavailable - good UX, kept.",
+    "Backend tests leak TEST_* instructors/stories (no teardown fixture). I cleaned them before frontend run; a session-scoped teardown fixture that deletes TEST_* records would make the pipeline hermetic."
+  ],
+  "updated_files": ["/app/backend/tests/test_bodhak_api.py"],
+  "success_rate": {"backend": "100% (25/25)", "frontend": "100% of iter2 flows"},
+  "test_credentials": "None (no auth)",
+  "seed_data_creation": "Backend tests create 1 TEST_Instructor and 1 TEST_CivilProfile instructor + a few TEST_ stories per run. These were manually purged before frontend testing to assert exact seed counts (32 total, Civil=2). The subsequent backend pytest run will re-add them.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Expected seed counts after fresh DB: 32 instructors total, Civil=2 (Suresh, Meenakshi), Mechanical=2 (Harish, Ayesha), Electronics=1 (Ramesh), Architecture=2 (Nandita, Imran), Biomedical=1 (Kavitha), Management=3 (Anjali, Varun, Sneha), Software & Data=21. Backend tests leak TEST_* data; purge with db.instructors.delete_many({'name': {'$regex':'^TEST_'}}) + db.stories.delete_many({'learner_name':{'$regex':'^TEST_'}}) before counting if needed. Instructor card testid is 'instructor-card-{id}' (not 'instructor-card'). Shadcn Select: click trigger -> wait 300ms -> click [role=option] with force=True. Ask endpoint can take 15-25s; use 30s timeout."
+}

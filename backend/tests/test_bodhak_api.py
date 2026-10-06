@@ -35,10 +35,11 @@ def test_list_instructors_count_and_fields(s):
     r = s.get(f"{API}/instructors", timeout=15)
     assert r.status_code == 200
     docs = r.json()
-    assert len(docs) == 24
+    assert len(docs) >= 32
     for d in docs:
         assert "bodhak_score" in d and "story_count" in d
         assert "name" in d and "skills" in d and "platforms" in d
+        assert d.get("domain"), f"instructor {d['name']} missing domain"
 
 
 def test_list_instructors_filters_and_sort(s):
@@ -168,7 +169,7 @@ def test_leaderboard(s):
     r = s.get(f"{API}/leaderboard", timeout=15)
     assert r.status_code == 200
     rows = r.json()
-    assert len(rows) == 24
+    assert len(rows) >= 32
     scores = [row["bodhak_score"] or 0 for row in rows]
     assert scores == sorted(scores, reverse=True)
     assert rows[0]["rank"] == 1
@@ -201,3 +202,96 @@ def test_create_and_update_instructor(s):
     r3 = s.get(f"{API}/instructors/{iid}", timeout=15)
     assert r3.status_code == 200
     assert r3.json()["headline"] == "Updated headline"
+
+
+# ============ Iteration 2 tests ============
+
+EXPECTED_DOMAINS = ["Software & Data", "Civil", "Mechanical", "Electronics", "Architecture", "Biomedical", "Management"]
+
+
+def test_meta_domains_and_platforms(s):
+    r = s.get(f"{API}/meta", timeout=15)
+    assert r.status_code == 200
+    data = r.json()
+    assert data.get("domains") == EXPECTED_DOMAINS
+    assert "NPTEL" in data["platforms"]
+    assert "Skill-Lync" in data["platforms"]
+
+
+@pytest.mark.parametrize("domain,expected", [
+    ("Civil", 2),
+    ("Mechanical", 2),
+    ("Electronics", 1),
+    ("Architecture", 2),
+    ("Biomedical", 1),
+    ("Management", 3),
+])
+def test_instructors_filter_by_domain(s, domain, expected):
+    r = s.get(f"{API}/instructors", params={"domain": domain}, timeout=15)
+    assert r.status_code == 200
+    docs = r.json()
+    # Exclude any TEST_ instructors from previous runs
+    docs = [d for d in docs if not d["name"].startswith("TEST_")]
+    assert len(docs) == expected, f"domain={domain} got {[d['name'] for d in docs]}"
+    for d in docs:
+        assert d["domain"] == domain
+        # new (iter2) domain instructors have exactly 4 stories; Management had varied counts in iter1,
+        # so only enforce 4-story requirement for the new domains per the spec
+        if domain in ("Civil", "Mechanical", "Electronics", "Architecture", "Biomedical"):
+            # Seed guarantees exactly 4; prior test runs may have appended TEST_ stories, so allow >=4
+            assert d["story_count"] >= 4, f"{d['name']} has {d['story_count']} stories"
+
+
+def test_civil_instructor_names(s):
+    r = s.get(f"{API}/instructors", params={"domain": "Civil"}, timeout=15)
+    names = {d["name"] for d in r.json()}
+    assert {"Suresh Balakrishnan", "Meenakshi Sundaram"}.issubset(names)
+
+
+def test_ask_endpoint(s):
+    r_list = s.get(f"{API}/instructors", params={"domain": "Civil"}, timeout=15)
+    iid = r_list.json()[0]["id"]
+    r = s.post(f"{API}/instructors/{iid}/ask", json={"question": "Is this good for a beginner?"}, timeout=60)
+    assert r.status_code == 200
+    body = r.json()
+    assert isinstance(body["answer"], str) and len(body["answer"]) > 0
+    assert body["source"] in ("ai", "fallback")
+    assert isinstance(body["story_count"], int)
+
+
+def test_ask_too_short(s):
+    r_list = s.get(f"{API}/instructors", timeout=15)
+    iid = r_list.json()[0]["id"]
+    r = s.post(f"{API}/instructors/{iid}/ask", json={"question": "hi"}, timeout=15)
+    assert r.status_code == 422
+
+
+def test_summary_prewarmed_fast(s):
+    # Pick a seeded instructor and expect summary already warmed
+    r_list = s.get(f"{API}/instructors", params={"domain": "Civil"}, timeout=15)
+    iid = r_list.json()[0]["id"]
+    t0 = time.time()
+    r = s.get(f"{API}/instructors/{iid}/summary", timeout=10)
+    dt = time.time() - t0
+    assert r.status_code == 200
+    data = r.json()
+    assert "strengths" in data
+    assert dt < 2, f"Summary not pre-warmed, took {dt:.2f}s"
+
+
+def test_create_instructor_with_domain_civil(s):
+    payload = {
+        "name": "TEST_CivilProfile", "headline": "Test civil",
+        "bio": "", "years_experience": 3, "industry_role": "Tester",
+        "category": "Civil Engineering", "domain": "Civil",
+        "skills": ["RCC Design"],
+        "platforms": [{"name": "NPTEL", "courses": ["Test"], "rating": 4.2}],
+        "batches": [],
+    }
+    r = s.post(f"{API}/instructors", json=payload, timeout=15)
+    assert r.status_code == 201
+    assert r.json()["domain"] == "Civil"
+    # Verify shows up when filtering by Civil
+    r2 = s.get(f"{API}/instructors", params={"domain": "Civil"}, timeout=15)
+    names = {d["name"] for d in r2.json()}
+    assert "TEST_CivilProfile" in names

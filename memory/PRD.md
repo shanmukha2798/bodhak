@@ -24,6 +24,16 @@ GET /meta · GET /instructors (skill, platform, min_rating, min_years, sort) · 
 - Bodhak Score tooltip, footer demo notice, responsive layout
 - Testing: iteration_1 — all backend + frontend tests passed
 
+## Implemented (2026-06, iteration 2)
+- Compare two instructors page (/compare?a=&b=) linked from Browse header and every profile
+- Copy profile link button on profile
+- AI summaries pre-generated in background at startup (and after new stories), in-flight de-duplication
+- "Ask a question about <instructor>" on profile (POST /instructors/{id}/ask, AI with keyword fallback)
+- Domain field + domain pill filter (All, Software & Data, Civil, Mechanical, Electronics, Architecture, Biomedical, Management); domain select in profile form
+- 8 new seeded instructors (Civil ×2, Mechanical ×2, Electronics, Architecture ×2, Biomedical) with 4 stories each; NPTEL and Skill-Lync platforms
+- Wordmark 26px / 700 / tight / #0A2540
+- Testing: iteration_2 — 25/25 backend + all frontend checks passed
+
 ## Backlog
 - P1: Pre-generate summaries in background after seed; per-platform deep links to courses
 - P2: Instructor avatar upload (object storage); share-profile link; compare two instructors
