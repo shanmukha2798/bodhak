@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --bk-blue: #0071e3;
+    --bk-blue-hover: #0077ed;
+    --bk-text: #1d1d1f;
+    --bk-muted: #86868b;
+    --bk-alt: #f5f5f7;
+    --background: 0 0% 100%;
+    --foreground: 240 3% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 3% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 3% 12%;
+    --primary: 211 100% 45%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 3% 12%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 2% 53%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 3% 12%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 6% 90%;
+    --input: 240 5% 83%;
+    --ring: 211 100% 45%;
+    --radius: 0.75rem;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--bk-text);
+    background: #fff;
+}
+
+::selection {
+    background: rgba(0, 113, 227, 0.18);
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+}
+
+@layer components {
+    .bk-card {
+        @apply bg-white rounded-[18px] border border-black/[0.06] shadow-[0_4px_24px_-2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.02)];
+        transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+    .bk-card-hover:hover {
+        @apply shadow-[0_12px_32px_-4px_rgba(0,0,0,0.08),0_4px_12px_-2px_rgba(0,0,0,0.03)];
+        transform: translateY(-2px);
+    }
+    .bk-btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-full font-medium text-sm px-5 py-2.5 cursor-pointer select-none disabled:cursor-not-allowed disabled:opacity-50;
+        transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
+    }
+    .bk-btn:active:not(:disabled) {
+        transform: scale(0.98);
+    }
+    .bk-btn-primary {
+        @apply bk-btn bg-[#0071e3] text-white hover:bg-[#0077ed];
+    }
+    .bk-btn-secondary {
+        @apply bk-btn bg-[#e8e8ed] text-[#1d1d1f] hover:bg-[#dcdce0];
+    }
+    .bk-btn-outline {
+        @apply bk-btn bg-white border border-[#d2d2d7] text-[#1d1d1f] hover:border-[#1d1d1f];
+    }
+    .bk-btn-link {
+        @apply inline-flex items-center gap-1 text-[#0071e3] text-sm font-medium hover:underline cursor-pointer;
+    }
+    .bk-input {
+        @apply w-full px-4 py-3 bg-white border border-[#d2d2d7] rounded-2xl text-[#1d1d1f] text-sm placeholder:text-[#86868b] focus:outline-none focus:ring-2 focus:ring-[#0071e3] focus:border-transparent;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .bk-chip {
+        @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-[#f5f5f7] text-[#1d1d1f] border border-[#e5e5ea];
+    }
+    .bk-chip-blue {
+        @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#e8f2ff] text-[#0071e3];
+    }
+    .bk-label {
+        @apply block text-xs font-semibold uppercase tracking-wide text-[#6e6e73] mb-1.5;
+    }
+    .bk-eyebrow {
+        @apply text-sm font-medium text-[#0071e3];
+    }
+    .bk-h1 {
+        @apply text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[#1d1d1f] leading-[1.05];
+    }
+    .bk-h2 {
+        @apply text-2xl sm:text-3xl font-semibold tracking-tight text-[#1d1d1f];
+    }
+    .bk-sub {
+        @apply text-base md:text-lg text-[#86868b] leading-relaxed;
+    }
+}
+
+.fade-up {
+    animation: fadeUp 0.5s ease both;
+}
+.fade-in {
+    animation: fadeIn 0.4s ease both;
+}
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.pulse-dot {
+    animation: pulseDot 1.2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+@layer base {
+    [data-debug-wrapper="true"] {
+        display: contents !important;
+    }
+}

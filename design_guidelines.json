@@ -1,0 +1,117 @@
+{
+  "project_name": "Bodhak",
+  "tagline": "Know your teacher before you enrol.",
+  "design_philosophy": "Apple-inspired minimal design with generous white space, large confident headlines, system font hierarchy, near-black text on crisp white and light grey (#f5f5f7) sections, soft 18px rounded cards, pill-shaped action buttons, and pure #0071e3 blue accents. Self-explanatory, zero jargon, zero dark patterns, fully responsive.",
+  "theme": "light",
+  "colors": {
+    "primary": "#0071e3",
+    "primary_hover": "#0077ed",
+    "primary_light": "#e8f2ff",
+    "background_main": "#ffffff",
+    "background_alt": "#f5f5f7",
+    "background_subtle": "#fafafa",
+    "text_primary": "#1d1d1f",
+    "text_secondary": "#86868b",
+    "text_tertiary": "#6e6e73",
+    "border_light": "#e5e5ea",
+    "border_subtle": "#d2d2d7",
+    "card_bg": "#ffffff",
+    "card_border": "rgba(0,0,0,0.06)",
+    "shadow_soft": "0 4px 24px -2px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02)",
+    "shadow_hover": "0 12px 32px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03)",
+    "score_badge_bg": "#f0f7ff",
+    "score_badge_text": "#0071e3",
+    "tag_bg": "#e8e8ed",
+    "tag_text": "#1d1d1f",
+    "chart_colors": ["#0071e3", "#34c759", "#ff9500", "#af52de", "#5856d6", "#ff2d55"]
+  },
+  "typography": {
+    "font_family": "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter', sans-serif",
+    "headings": {
+      "hero_h1": "text-4xl sm:text-5xl lg:text-6xl font-semibold tracking-tight text-[#1d1d1f]",
+      "section_h2": "text-2xl sm:text-3xl lg:text-4xl font-semibold tracking-tight text-[#1d1d1f]",
+      "card_h3": "text-xl sm:text-2xl font-semibold text-[#1d1d1f]",
+      "subtitle": "text-lg sm:text-xl font-normal text-[#86868b] leading-relaxed max-w-2xl"
+    },
+    "plain_english_heading_rule": "Every view must feature a 1-line plain-English banner/heading explaining exactly what the page is for (e.g. 'Learner Discovery: Find the exact instructor that matches your goals across Udemy, Coursera, upGrad and more.')"
+  },
+  "components_styling": {
+    "cards": "bg-white rounded-[18px] border border-black/[0.06] p-6 sm:p-8 shadow-[0_4px_24px_-2px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-0.5",
+    "buttons_primary": "bg-[#0071e3] hover:bg-[#0077ed] active:bg-[#005bb5] text-white font-medium px-6 py-3 rounded-full transition-all duration-200 shadow-sm inline-flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer",
+    "buttons_secondary": "bg-[#e8e8ed] hover:bg-[#dcdce0] active:bg-[#ceced2] text-[#1d1d1f] font-medium px-5 py-2.5 rounded-full transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm cursor-pointer",
+    "buttons_outline": "bg-white border border-[#d2d2d7] hover:border-[#1d1d1f] text-[#1d1d1f] font-medium px-5 py-2.5 rounded-full transition-all duration-200 inline-flex items-center justify-center gap-2 text-sm cursor-pointer",
+    "segmented_control": "bg-[#e8e8ed]/80 p-1 rounded-full inline-flex items-center gap-1 border border-black/[0.04]",
+    "segmented_control_tab_active": "bg-white text-[#1d1d1f] font-semibold px-4 py-2 rounded-full shadow-xs text-sm transition-all duration-200",
+    "segmented_control_tab_inactive": "text-[#6e6e73] hover:text-[#1d1d1f] font-medium px-4 py-2 rounded-full text-sm transition-all duration-200",
+    "badges": "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-[#f5f5f7] text-[#1d1d1f] border border-[#e5e5ea]",
+    "score_chip": "inline-flex items-center justify-center font-bold px-3 py-1 rounded-full text-sm bg-[#e8f2ff] text-[#0071e3] border border-[#0071e3]/20",
+    "inputs": "w-full px-5 py-3.5 bg-white border border-[#d2d2d7] rounded-2xl text-[#1d1d1f] placeholder:text-[#86868b] focus:outline-none focus:ring-2 focus:ring-[#0071e3] focus:border-transparent transition-all shadow-xs"
+  },
+  "layout_architecture": {
+    "navigation_bar": "Sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-[#e5e5ea] px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4",
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12",
+    "sections": "mb-16 sm:mb-24",
+    "learner_view": "Hero search, AI top 3 matches cards, Filter & Sort Bar, Instructor Grid, Detailed Instructor Profile modal/page view",
+    "instructor_view": "Header overview, View-as selector, Create/Edit profile form, Analytics Dashboard (Bodhak Score widget, recharts ratings by platform, rating trend line chart, AI improvements checklist)",
+    "edtech_view": "Describe-instructor prompt form, ranked list with reasoning, skill leaderboard table, Add to Shortlist trigger, Shortlist sidebar/panel",
+    "footer": "py-8 border-t border-[#e5e5ea] bg-[#f5f5f7] text-center text-xs text-[#86868b]"
+  },
+  "image_urls": {
+    "instructors": [
+      {
+        "url": "https://images.unsplash.com/photo-1580489944761-15a19d654956?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjB0ZWFjaGVyJTIwcG9ydHJhaXQlMjBpbnN0cnVjdG9yJTIwaGVhZHNob3QlMjBwb3J0cmFpdHxlbnwwfHx8fDE3OTEzMDc1NzV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Dr. Ananya Sharma - System Architecture & Distributed Systems lead instructor"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1506863530036-1efeddceb993?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjB0ZWFjaGVyJTIwcG9ydHJhaXQlMjBpbnN0cnVjdG9yJTIwaGVhZHNob3QlMjBwb3J0cmFpdHxlbnwwfHx8fDE3OTEzMDc1NzV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Sarah Jenkins - Fullstack React & Cloud Native specialist"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHw0fHxwcm9mZXNzaW9uYWwlMjB0ZWFjaGVyJTIwcG9ydHJhaXQlMjBpbnN0cnVjdG9yJTIwaGVhZHNob3QlMjBwb3J0cmFpdHxlbnwwfHx8fDE3OTEzMDc1NzV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Priya Nair - Data Science & Deep Learning mentor"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2ODh8MHwxfHNlYXJjaHwyfHxwcm9mZXNzaW9uYWwlMjB0ZWFjaGVyJTIwcG9ydHJhaXQlMjBpbnN0cnVjdG9yJTIwaGVhZHNob3QlMjBwb3J0cmFpdHxlbnwwfHx8fDE3OTEzMDc1NzV8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Meera Patel - Product Design & UX Strategy Lead"
+      },
+      {
+        "url": "https://images.pexels.com/photos/5212321/pexels-photo-5212321.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Prof. David Miller - Algorithms & Competitive Programming"
+      },
+      {
+        "url": "https://images.pexels.com/photos/8363756/pexels-photo-8363756.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Elena Rostova - Machine Learning Pipelines & DevOps"
+      }
+    ],
+    "workshops": [
+      {
+        "url": "https://images.unsplash.com/photo-1587691592099-24045742c181?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHw0fHxtb2Rlcm4lMjB0ZWNoJTIwd29ya3Nob3AlMjBlZHVjYXRvciUyMHRlYWNoaW5nJTIwY29kaW5nJTIwcHJlc2VudGF0aW9ufGVufDB8fHx8MTc5MTMwNzU3NXww&ixlib=rb-4.1.0&q=85",
+        "description": "Live coding workshop on cloud microservices"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1MDZ8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjB0ZWNoJTIwd29ya3Nob3AlMjBlZHVjYXRvciUyMHRlYWNoaW5nJTIwY29kaW5nJTIwcHJlc2VudGF0aW9ufGVufDB8fHx8MTc5MTMwNzU3NXww&ixlib=rb-4.1.0&q=85",
+        "description": "Interactive system design bootcamp classroom"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Use standard JavaScript React components (.js or .jsx).",
+    "Build the 3-way view switcher in the top sticky bar: 'I want to learn' | 'I teach' | 'I'm an edtech platform'. Ensure smooth view transitions.",
+    "Learner view must include Hero query field, 3 sample prompt chips (e.g. 'System Design for Senior Devs', 'Hands-on React & Next.js', 'Math for Machine Learning'), AI match top 3 cards with match percentage + plain English reasons, browse grid with filters (skill, platform, min rating, years) & sort by Bodhak score.",
+    "Instructor card must contain avatar, name, headline, top 3 skill tags, platform chips (Udemy, Coursera, upGrad, Great Learning, Offline), years of experience, Bodhak Score (out of 5), and number of learner stories.",
+    "Instructor Profile detail page/modal must show: header, avatar, name, headline, years, industry role, Verified badge, large Bodhak Score /5 with ratings count, 'Teaches on' platforms, Skills chips, Upcoming batches, AI summary (Strengths / Could be better / Best suited for), Learner stories list, Share your story form, disabled 'Book a 1:1' button.",
+    "Instructor View: Heading + plain English description, 'View as' profile dropdown, 'Create new profile' button + form, Analytics Dashboard with Bodhak Score, total stories count, Recharts Bar Chart (rating by platform), Recharts Line Chart (rating trend), AI Summary with 'What to improve'.",
+    "Edtech View: Heading + plain English description, describe-instructor prompt input, ranked list with reasons, leaderboard table by skill, 'Add to shortlist' button, and 'My Shortlist' slide-over/panel.",
+    "Footer text: 'Demo prototype. All instructors and stories are synthetic.'",
+    "Add testids to every interactive element (data-testid='...').",
+    "Follow Apple HIG aesthetic: lots of white space, crisp SF Pro font hierarchy, subtle borders, 18px soft radius cards, and #0071e3 blue accents.",
+    "Do NOT use any Apple logos or trademarks."
+  ],
+  "UNIVERSAL GUIDELINES FOR MAIN AGENT": [
+    "Never use dark gradients for cards or sections.",
+    "Keep text contrast high and clear according to WCAG/APCA rules.",
+    "Use sonner for user feedback (e.g. when sharing a story or adding an instructor to shortlist).",
+    "Ensure all buttons have explicit text stating their exact action.",
+    "All cards must have p-6 or p-8 internal padding and soft hover elevation."
+  ]
+}
