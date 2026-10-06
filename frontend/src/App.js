@@ -8,6 +8,7 @@ import LearnerPage from "@/pages/LearnerPage";
 import ProfilePage from "@/pages/ProfilePage";
 import TeachPage from "@/pages/TeachPage";
 import PlatformPage from "@/pages/PlatformPage";
+import ComparePage from "@/pages/ComparePage";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
             <Routes>
               <Route path="/" element={<LearnerPage />} />
               <Route path="/instructor/:id" element={<ProfilePage />} />
+              <Route path="/compare" element={<ComparePage />} />
               <Route path="/teach" element={<TeachPage />} />
               <Route path="/platforms" element={<PlatformPage />} />
             </Routes>

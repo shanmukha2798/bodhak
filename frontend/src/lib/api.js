@@ -10,6 +10,7 @@ export const fetchMeta = () => api.get("/meta").then((r) => r.data);
 export const fetchLeaderboard = (skill) => api.get("/leaderboard", { params: skill ? { skill } : {} }).then((r) => r.data);
 export const postMatch = (goal) => api.post("/match", { goal }).then((r) => r.data);
 export const postPlatformSearch = (query) => api.post("/platform-search", { query }).then((r) => r.data);
+export const postAsk = (id, question) => api.post(`/instructors/${id}/ask`, { question }).then((r) => r.data);
 export const postStory = (id, body) => api.post(`/instructors/${id}/stories`, body).then((r) => r.data);
 export const createInstructor = (body) => api.post("/instructors", body).then((r) => r.data);
 export const updateInstructor = (id, body) => api.put(`/instructors/${id}`, body).then((r) => r.data);

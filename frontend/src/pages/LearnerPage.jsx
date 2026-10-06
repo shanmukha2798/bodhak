@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Sparkles } from "lucide-react";
+import { Columns2, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { InstructorCard } from "@/components/InstructorCard";
 import { FilterBar } from "@/components/FilterBar";
@@ -111,6 +112,7 @@ export default function LearnerPage() {
             <h2 className="bk-h2">Browse all instructors</h2>
             <p className="bk-sub mt-2">Filter by what you want to learn, where, and how experienced you want your teacher to be. <HowCalculated /></p>
           </div>
+          <Link to="/compare" className="bk-btn-outline shrink-0" data-testid="compare-instructors-link"><Columns2 className="w-4 h-4" />Compare two instructors</Link>
         </div>
         <FilterBar filters={filters} setFilters={setFilters} meta={meta} resultCount={instructors?.length} />
         <div className="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-5" data-testid="instructor-grid">

@@ -14,7 +14,7 @@ export const Nav = () => {
   return (
     <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-[#e5e5ea]" data-testid="top-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <Link to="/" className="text-xl font-semibold tracking-tight text-[#1d1d1f]" data-testid="bodhak-wordmark">
+        <Link to="/" className="text-[26px] font-bold tracking-tight text-[#0A2540] leading-none" data-testid="bodhak-wordmark">
           Bodhak
         </Link>
         <div

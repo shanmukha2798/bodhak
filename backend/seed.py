@@ -2,7 +2,14 @@ import random
 import uuid
 from datetime import date, timedelta
 
-PLATFORMS = ["Udemy", "Coursera", "upGrad", "Great Learning", "Scaler", "Simplilearn", "Offline Institute"]
+PLATFORMS = ["Udemy", "Coursera", "upGrad", "Great Learning", "Scaler", "Simplilearn", "NPTEL", "Skill-Lync", "Offline Institute"]
+DOMAINS = ["Software & Data", "Civil", "Mechanical", "Electronics", "Architecture", "Biomedical", "Management"]
+CATEGORY_DOMAIN = {"Product Management": "Management", "Civil Engineering": "Civil", "Mechanical Engineering": "Mechanical",
+                   "Electronics": "Electronics", "Architecture": "Architecture", "Biomedical Engineering": "Biomedical"}
+
+
+def domain_for(category):
+    return CATEGORY_DOMAIN.get(category, "Software & Data")
 
 # name, category, headline, years, industry role, bio, skills, {platform: [courses]}, [(course, platform, start, mode)]
 INSTRUCTORS = [
@@ -133,7 +140,53 @@ INSTRUCTORS = [
      ["Product Discovery", "MVP Design", "User Research", "Pricing", "Go-to-Market", "Figma"],
      {"Scaler": ["Product Management Program"], "Udemy": ["Zero to One Product Management", "User Research that Works"]},
      [("Product Management Program", "Scaler", "2026-07-28", "Weekend"), ("User Research that Works", "Udemy", "2026-08-06", "Online")]),
+
+    ("Suresh Balakrishnan", "Civil Engineering", "Structural design you can defend in a site meeting", 18, "Senior Structural Engineer, L&T Construction",
+     "Suresh has designed high-rises, bridges and industrial sheds across India. He teaches RCC and steel design the way reviewers check it: code clause by code clause.",
+     ["Structural Design", "RCC Design", "STAAD.Pro", "ETABS", "IS Codes", "Steel Structures"],
+     {"NPTEL": ["Design of Reinforced Concrete Structures"], "Skill-Lync": ["Structural Analysis with ETABS"], "Offline Institute": ["Structural Design Weekend Studio, Chennai"]},
+     [("Structural Analysis with ETABS", "Skill-Lync", "2026-07-19", "Online"), ("Structural Design Weekend Studio, Chennai", "Offline Institute", "2026-08-01", "Weekend")]),
+    ("Meenakshi Sundaram", "Civil Engineering", "Construction management from real project sites", 14, "Project Manager, Shapoorji Pallonji",
+     "Meenakshi has delivered metro stations and hospitals on schedule. She teaches planning, costing and contracts with documents from real projects.",
+     ["Construction Management", "Primavera P6", "Project Scheduling", "Cost Estimation", "Site Safety", "Contracts"],
+     {"Coursera": ["Construction Project Management"], "NPTEL": ["Construction Planning and Control"], "Udemy": ["Primavera P6 for Site Engineers"]},
+     [("Primavera P6 for Site Engineers", "Udemy", "2026-07-14", "Online")]),
+
+    ("Harish Gowda", "Mechanical Engineering", "CAD/CAM from sketch to shop floor", 12, "Design Lead, Bosch India",
+     "Harish designs precision components and teaches CAD, GD&T and CNC programming with parts that learners actually get machined.",
+     ["SolidWorks", "CATIA", "CNC Programming", "GD&T", "CAM", "Manufacturing Processes"],
+     {"Skill-Lync": ["CAD/CAM Masterclass"], "Udemy": ["SolidWorks for Mechanical Engineers", "CNC Programming Basics"], "Offline Institute": ["CAD Lab Weekends, Bengaluru"]},
+     [("CAD/CAM Masterclass", "Skill-Lync", "2026-07-13", "Online"), ("CAD Lab Weekends, Bengaluru", "Offline Institute", "2026-07-26", "Weekend")]),
+    ("Ayesha Siddiqui", "Mechanical Engineering", "Automotive design with an engineer's judgement", 10, "Vehicle Integration Engineer, Tata Motors",
+     "Ayesha works on EV platforms and teaches automotive design, FEA and vehicle dynamics with trade-offs from real vehicle programmes.",
+     ["Automotive Design", "Vehicle Dynamics", "FEA", "ANSYS", "Powertrain", "EV Systems"],
+     {"Skill-Lync": ["Automotive Design and Analysis"], "Coursera": ["Electric Vehicle Engineering"], "NPTEL": ["Vehicle Dynamics"]},
+     [("Automotive Design and Analysis", "Skill-Lync", "2026-08-04", "Online")]),
+
+    ("Ramesh Chandran", "Electronics", "VLSI and embedded systems, from transistor to firmware", 16, "Principal Engineer, Texas Instruments India",
+     "Ramesh has taped out several chips and written firmware for them. He teaches digital design and embedded C with boards in every learner's hands.",
+     ["VLSI Design", "Verilog", "Embedded C", "Microcontrollers", "RTOS", "PCB Design"],
+     {"NPTEL": ["Digital VLSI Design"], "Udemy": ["Embedded Systems with ARM Cortex-M", "Verilog for FPGA"], "Offline Institute": ["Embedded Weekend Lab, Hyderabad"]},
+     [("Embedded Systems with ARM Cortex-M", "Udemy", "2026-07-17", "Online"), ("Embedded Weekend Lab, Hyderabad", "Offline Institute", "2026-08-08", "Weekend")]),
+
+    ("Nandita Rao", "Architecture", "Revit and BIM for architects who want faster, cleaner drawings", 11, "BIM Manager, CP Kukreja Architects",
+     "Nandita runs BIM for large institutional projects and teaches Revit and coordination workflows that cut drawing time in half.",
+     ["Revit", "BIM", "AutoCAD", "Construction Documentation", "Navisworks", "Parametric Design"],
+     {"Udemy": ["Revit Architecture Complete Course"], "Skill-Lync": ["BIM for Architects"], "Offline Institute": ["BIM Studio Weekends, Delhi"]},
+     [("BIM for Architects", "Skill-Lync", "2026-07-21", "Online"), ("BIM Studio Weekends, Delhi", "Offline Institute", "2026-08-02", "Weekend")]),
+    ("Imran Shaikh", "Architecture", "Sustainable design that satisfies both the client and the climate", 13, "Principal Architect, Studio Verdant",
+     "Imran designs green-rated buildings and teaches passive design, daylighting and certification with his own projects as case studies.",
+     ["Sustainable Design", "Green Building", "Passive Cooling", "IGBC and GRIHA", "Daylight Analysis", "Climate-responsive Design"],
+     {"Coursera": ["Sustainable Architecture and Green Buildings"], "NPTEL": ["Energy Efficient Buildings"]},
+     [("Sustainable Architecture and Green Buildings", "Coursera", "2026-07-28", "Online")]),
+
+    ("Kavitha Menon", "Biomedical Engineering", "Medical devices from idea to regulatory approval", 15, "Head of R&D, medical device startup",
+     "Kavitha has taken three devices through CDSCO and CE approval. She teaches instrumentation, prototyping and regulation for engineers entering healthcare.",
+     ["Medical Devices", "Biomedical Instrumentation", "ISO 13485", "Regulatory Affairs", "Signal Processing", "Prototyping"],
+     {"NPTEL": ["Biomedical Instrumentation"], "Coursera": ["Medical Device Design and Regulation"], "Udemy": ["Build Your First Medical Device Prototype"]},
+     [("Medical Device Design and Regulation", "Coursera", "2026-07-30", "Online")]),
 ]
+ORIGINAL_COUNT = 24
 
 LEARNERS = ["Aarav Patel", "Ishita Rao", "Rahul Nair", "Meghna Das", "Tanvi Joshi", "Vivek Gupta", "Sana Khan", "Harsh Vardhan",
             "Nandini Shetty", "Abhishek Tiwari", "Pallavi Kulkarni", "Dev Malhotra", "Riya Sen", "Kunal Bhatt", "Shreya Agarwal",
@@ -167,7 +220,7 @@ THREE = [
 WEIGHTS = [(0.62, 0.30, 0.08), (0.50, 0.38, 0.12), (0.40, 0.40, 0.20), (0.70, 0.25, 0.05), (0.33, 0.42, 0.25), (0.55, 0.35, 0.10)]
 
 
-WOMEN = {"Kavya", "Priya", "Neha", "Shruti", "Divya", "Pooja", "Ritu", "Lakshmi", "Anjali", "Sneha"}
+WOMEN = {"Kavya", "Priya", "Neha", "Shruti", "Divya", "Pooja", "Ritu", "Lakshmi", "Anjali", "Sneha", "Meenakshi", "Ayesha", "Nandita", "Kavitha"}
 
 
 def avatar(name, idx=None):
@@ -186,13 +239,13 @@ def build_seed():
         first = name.split()[0]
         instructors.append({
             "id": iid, "name": name, "headline": headline, "bio": bio, "years_experience": years,
-            "industry_role": role, "category": cat, "skills": skills, "avatar": avatar(name, idx), "verified": True,
+            "industry_role": role, "category": cat, "domain": domain_for(cat), "skills": skills, "avatar": avatar(name, idx), "verified": True,
             "platforms": [{"name": p, "courses": c, "rating": round(rng.uniform(3.8, 4.9), 1)} for p, c in plats.items()],
             "batches": [{"course": c, "platform": p, "start_date": d, "mode": m} for c, p, d, m in batches],
         })
         w5, w4, w3 = WEIGHTS[idx % len(WEIGHTS)]
         used_templates, used_learners = set(), set()
-        for _ in range(rng.randint(4, 6)):
+        for _ in range(rng.randint(4, 6) if idx < ORIGINAL_COUNT else 4):
             platform = rng.choice(list(plats.keys()))
             course = rng.choice(plats[platform])
             rating = rng.choices([5, 4, 3], weights=[w5, w4, w3])[0]

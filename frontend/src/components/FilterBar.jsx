@@ -23,9 +23,25 @@ const Pick = ({ value, onChange, options, allLabel, testId }) => (
 
 export const FilterBar = ({ filters, setFilters, meta, resultCount }) => {
   const set = (k) => (v) => setFilters((f) => ({ ...f, [k]: v }));
-  const hasFilters = filters.skill || filters.platform || filters.min_rating || filters.min_years;
+  const hasFilters = filters.domain || filters.skill || filters.platform || filters.min_rating || filters.min_years;
+  const domains = ["All", ...(meta?.domains || [])];
   return (
     <div className="bk-card p-5 sm:p-6 flex flex-col gap-4" data-testid="filter-bar">
+      <div>
+        <span className="bk-label">Domain</span>
+        <div className="flex flex-wrap gap-2" data-testid="domain-filter">
+          {domains.map((d) => {
+            const active = d === "All" ? !filters.domain : filters.domain === d;
+            return (
+              <button key={d} type="button" onClick={() => set("domain")(d === "All" ? "" : d)} aria-pressed={active}
+                data-testid={`domain-pill-${d.toLowerCase().replace(/[^a-z]+/g, "-")}`}
+                className={`${active ? "bk-btn-primary" : "bk-btn-outline"} px-4 py-2 text-sm`}>
+                {d}
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div className="flex flex-wrap gap-3">
         <Field label="Skill"><Pick value={filters.skill} onChange={set("skill")} options={meta?.skills || []} allLabel="Any skill" testId="filter-skill" /></Field>
         <Field label="Platform"><Pick value={filters.platform} onChange={set("platform")} options={meta?.platforms || []} allLabel="Any platform" testId="filter-platform" /></Field>

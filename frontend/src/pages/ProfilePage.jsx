@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, BadgeCheck, Briefcase, CalendarDays, Lock, PenLine } from "lucide-react";
+import { ArrowLeft, BadgeCheck, Briefcase, CalendarDays, Columns2, Link2, Lock, MessageCircleQuestion, PenLine } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar } from "@/components/InstructorCard";
 import { ScoreBadge, HowCalculated, Stars } from "@/components/ScoreBadge";
-import { AISummary } from "@/components/AISummary";
+import { AISummary, Thinking } from "@/components/AISummary";
 import { StoryForm } from "@/components/StoryForm";
-import { fetchInstructor, fetchSummary } from "@/lib/api";
+import { fetchInstructor, fetchSummary, postAsk } from "@/lib/api";
 
 const Section = ({ title, hint, children, testId }) => (
   <section className="bk-card p-6 sm:p-8" data-testid={testId}>
@@ -17,6 +18,50 @@ const Section = ({ title, hint, children, testId }) => (
 );
 
 const fmt = (d) => new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+
+const copyLink = async () => {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.success("Profile link copied. Paste it anywhere you teach.");
+  } catch {
+    toast(`Copy this link: ${window.location.href}`);
+  }
+};
+
+const AskBox = ({ instructor }) => {
+  const [question, setQuestion] = useState("");
+  const [asking, setAsking] = useState(false);
+  const [result, setResult] = useState(null);
+  const first = instructor.name.split(" ")[0];
+  const ask = async (e) => {
+    e.preventDefault();
+    const q = question.trim();
+    if (q.length < 3) return toast("Type a question first, e.g. Is this good for beginners?");
+    setAsking(true);
+    try {
+      setResult(await postAsk(instructor.id, q));
+    } catch {
+      toast.error("We couldn't answer that right now. Please try again.");
+    } finally {
+      setAsking(false);
+    }
+  };
+  return (
+    <Section title={`Ask a question about ${first}`} hint="Get a short answer drawn from what learners have actually said in their stories." testId="ask-section">
+      <form onSubmit={ask} className="flex flex-col sm:flex-row gap-2">
+        <input className="bk-input rounded-full flex-1" placeholder="e.g. Is this course okay for a complete beginner?" value={question} onChange={(e) => setQuestion(e.target.value)} aria-label="Your question" data-testid="ask-input" />
+        <button type="submit" className="bk-btn-primary shrink-0" disabled={asking} data-testid="ask-submit-button"><MessageCircleQuestion className="w-4 h-4" />{asking ? "Reading stories…" : "Get an answer"}</button>
+      </form>
+      {asking && <div className="mt-4"><Thinking text={`Reading ${first}'s learner stories…`} /></div>}
+      {!asking && result && (
+        <div className="mt-4 rounded-2xl bg-[#f5f5f7] p-4 fade-in" data-testid="ask-answer">
+          <p className="text-sm leading-relaxed">{result.answer}</p>
+          <p className="text-[11px] text-[#86868b] mt-2">{result.source === "ai" ? `AI answer based on ${result.story_count} learner stories and the profile.` : `Based on ${result.story_count} learner stories.`}</p>
+        </div>
+      )}
+    </Section>
+  );
+};
 
 export default function ProfilePage() {
   const { id } = useParams();
@@ -37,7 +82,13 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-5 fade-in" data-testid="instructor-profile">
-      <Link to="/" className="bk-btn-link" data-testid="back-to-instructors"><ArrowLeft className="w-4 h-4" />Back to all instructors</Link>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <Link to="/" className="bk-btn-link" data-testid="back-to-instructors"><ArrowLeft className="w-4 h-4" />Back to all instructors</Link>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="bk-btn-outline px-4 py-2 text-xs" onClick={copyLink} data-testid="copy-profile-link-button"><Link2 className="w-3.5 h-3.5" />Copy profile link</button>
+          <Link to={`/compare?a=${i.id}`} className="bk-btn-outline px-4 py-2 text-xs" data-testid="compare-from-profile-link"><Columns2 className="w-3.5 h-3.5" />Compare with another instructor</Link>
+        </div>
+      </div>
 
       <header className="bk-card p-6 sm:p-8 flex flex-col md:flex-row gap-6 md:items-center" data-testid="profile-header">
         <Avatar src={i.avatar} name={i.name} className="w-24 h-24 sm:w-28 sm:h-28" />
@@ -103,6 +154,8 @@ export default function ProfilePage() {
       </div>
 
       <AISummary summary={summary} loading={summaryLoading && !summary} />
+
+      <AskBox instructor={i} />
 
       <Section title="Learner stories" hint="Real experiences shared by people who took this instructor's courses." testId="stories-section">
         {i.stories.length === 0 ? (

@@ -3,10 +3,10 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { createInstructor, updateInstructor } from "@/lib/api";
 
-const blank = { name: "", headline: "", bio: "", years_experience: "", industry_role: "", category: "", skills: "", platforms: [{ name: "Udemy", courses: "" }], batches: [] };
+const blank = { name: "", headline: "", bio: "", years_experience: "", industry_role: "", category: "", domain: "Software & Data", skills: "", platforms: [{ name: "Udemy", courses: "" }], batches: [] };
 
 const toForm = (i) => i ? {
-  name: i.name, headline: i.headline, bio: i.bio || "", years_experience: i.years_experience, industry_role: i.industry_role || "", category: i.category || "",
+  name: i.name, headline: i.headline, bio: i.bio || "", years_experience: i.years_experience, industry_role: i.industry_role || "", category: i.category || "", domain: i.domain || "Software & Data",
   skills: i.skills.join(", "), platforms: i.platforms.map((p) => ({ name: p.name, courses: p.courses.join(", ") })),
   batches: i.batches.map((b) => ({ ...b })),
 } : blank;
@@ -57,6 +57,11 @@ export const ProfileForm = ({ instructor, meta, onSaved }) => {
         <Row label="Headline (one line about how you teach)" htmlFor="pf-headline"><input id="pf-headline" className="bk-input" value={form.headline} onChange={set("headline")} placeholder="e.g. Builds data pipelines by day, teaches them by night" data-testid="profile-headline-input" /></Row>
         <Row label="Years of experience" htmlFor="pf-years"><input id="pf-years" type="number" min="0" className="bk-input" value={form.years_experience} onChange={set("years_experience")} data-testid="profile-years-input" /></Row>
         <Row label="Current or past industry role" htmlFor="pf-role"><input id="pf-role" className="bk-input" value={form.industry_role} onChange={set("industry_role")} placeholder="e.g. Staff Engineer, Razorpay" data-testid="profile-role-input" /></Row>
+        <Row label="Domain" htmlFor="pf-domain">
+          <select id="pf-domain" className="bk-input" value={form.domain} onChange={set("domain")} data-testid="profile-domain-select">
+            {(meta?.domains || ["Software & Data"]).map((d) => <option key={d}>{d}</option>)}
+          </select>
+        </Row>
         <Row label="Main area you teach" htmlFor="pf-category">
           <input id="pf-category" list="pf-categories" className="bk-input" value={form.category} onChange={set("category")} placeholder="e.g. Data Engineering" data-testid="profile-category-input" />
           <datalist id="pf-categories">{(meta?.categories || []).map((c) => <option key={c} value={c} />)}</datalist>

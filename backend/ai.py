@@ -132,8 +132,40 @@ async def ai_platform_search(query, instructors):
         return [{"instructor": f["instructor"], "reasons": f["reasons"]} for f in fallback_match(query, instructors, 5)], "fallback"
 
 
+def fallback_answer(i, stories, question):
+    toks = set(_tokens(question))
+    n = len(stories)
+    avg = round(sum(s["rating"] for s in stories) / n, 1) if n else None
+    scored = sorted(stories, key=lambda s: sum(1 for t in toks if t in s["text"].lower()), reverse=True)
+    hits = [s for s in scored[:2] if any(t in s["text"].lower() for t in toks)]
+    intro = f"Across {n} learner stories, {i['name'].split()[0]} is rated {avg} out of 5." if n else "There are no learner stories yet for this instructor."
+    if hits:
+        quotes = " ".join(f"One learner from {s['course']} on {s['platform']} said: \"{s['text']}\"" for s in hits)
+        return f"{intro} {quotes}"
+    return f"{intro} Learners have not said anything specific about that yet, so it is worth asking the instructor directly before enrolling."
+
+
+async def ai_answer(i, stories, question):
+    try:
+        prompt = (
+            f"Instructor: {i['name']}, {i['headline']}. {i['years_experience']} years, {i['industry_role']}. Skills: {', '.join(i['skills'])}. "
+            f"Upcoming batches: {json.dumps(i.get('batches', []))}.\n"
+            f"Learner stories (rating out of 5):\n{json.dumps([{'rating': s['rating'], 'course': s['course'], 'platform': s['platform'], 'text': s['text']} for s in stories])}\n\n"
+            f"A prospective learner asks: \"{question}\"\n"
+            "Answer honestly in plain English, under 80 words, using only the profile and stories above. If the stories do not cover it, say so plainly. "
+            "Return JSON: {\"answer\": str}"
+        )
+        data = await llm_json(prompt)
+        answer = str(data.get("answer", "")).strip()
+        if not answer:
+            raise ValueError("empty answer")
+        return answer, "ai"
+    except Exception as e:
+        log.warning("ask fallback: %s", e)
+        return fallback_answer(i, stories, question), "fallback"
+
+
 def fallback_summary(i, stories):
-    first = i["name"].split()[0]
     n = len(stories)
     avg = round(sum(s["rating"] for s in stories) / n, 1) if n else None
     low = [s for s in stories if s["rating"] <= 3]
