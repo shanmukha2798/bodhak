@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const api = axios.create({ baseURL: `${process.env.REACT_APP_BACKEND_URL}/api` });
+export const api = axios.create({ baseURL: `${process.env.REACT_APP_BACKEND_URL || ""}/api` });
 
 export const fetchInstructors = (params) => api.get("/instructors", { params }).then((r) => r.data);
 export const fetchInstructor = (id) => api.get(`/instructors/${id}`).then((r) => r.data);

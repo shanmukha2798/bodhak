@@ -90,3 +90,12 @@ frontend/node_modules/.cache/default-development/1.pack
 credentials.json
 *.key
 .credentials
+
+# Emergent platform artifacts
+.emergent/
+.gitconfig
+test_result.md
+
+# Keep the env templates
+!.env.example
+!**/.env.example

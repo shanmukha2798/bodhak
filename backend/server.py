@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, Request
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -18,10 +18,55 @@ import asyncio  # noqa: E402
 from seed import build_seed, PLATFORMS, DOMAINS, avatar  # noqa: E402
 from ai import ai_match, ai_platform_search, ai_summary, ai_answer  # noqa: E402
 
-client = AsyncIOMotorClient(os.environ['MONGO_URL'])
-db = client[os.environ['DB_NAME']]
+_mongo = {}
+
+
+def _get_db():
+    # Motor clients are bound to an event loop; serverless may hand us a new loop.
+    loop = asyncio.get_running_loop()
+    if _mongo.get("loop") is not loop:
+        _mongo["loop"] = loop
+        _mongo["client"] = AsyncIOMotorClient(os.environ['MONGO_URL'])
+    return _mongo["client"][os.environ.get('BODHAK_DB_NAME') or os.environ['DB_NAME']]
+
+
+class _DB:
+    def __getattr__(self, name):
+        return getattr(_get_db(), name)
+
+
+db = _DB()
+_seed_state = {"done": False, "lock": None}
+
+
+async def ensure_seeded():
+    if _seed_state["done"]:
+        return
+    if _seed_state["lock"] is None:
+        _seed_state["lock"] = asyncio.Lock()
+    async with _seed_state["lock"]:
+        if _seed_state["done"]:
+            return
+        await seed_if_needed()
+        _seed_state["done"] = True
+
+
 app = FastAPI()
-api = APIRouter(prefix="/api")
+api = APIRouter(prefix="/api", dependencies=[Depends(ensure_seeded)])
+
+
+async def ai_rate_limit(request: Request):
+    # Only meaningful when a paid/quota-limited key is configured; fallbacks are free.
+    if not os.environ.get("GEMINI_API_KEY"):
+        return
+    limit = int(os.environ.get("AI_RATE_LIMIT_PER_HOUR", "20"))
+    ip = (request.headers.get("x-forwarded-for") or (request.client.host if request.client else "unknown")).split(",")[0].strip()
+    bucket = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    doc = await db.rate_limits.find_one_and_update(
+        {"_id": f"{ip}:{bucket}"}, {"$inc": {"n": 1}, "$setOnInsert": {"at": datetime.now(timezone.utc)}},
+        upsert=True, return_document=True)
+    if doc["n"] > limit:
+        raise HTTPException(429, "Too many AI requests, please try again later")
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger("bodhak")
 NO_ID = {"_id": 0}
@@ -191,27 +236,12 @@ async def ensure_summary(iid):
     return await asyncio.shield(task)
 
 
-async def warm_summaries():
-    sem = asyncio.Semaphore(3)
-
-    async def one(iid):
-        async with sem:
-            try:
-                await ensure_summary(iid)
-            except Exception as e:
-                logger.warning("warm summary %s failed: %s", iid, e)
-
-    ids = [d["id"] async for d in db.instructors.find({}, {"_id": 0, "id": 1})]
-    await asyncio.gather(*(one(i) for i in ids))
-    logger.info("Summaries warmed for %d instructors", len(ids))
-
-
 @api.get("/instructors/{iid}/summary")
 async def get_summary(iid: str):
     return await ensure_summary(iid)
 
 
-@api.post("/instructors/{iid}/ask")
+@api.post("/instructors/{iid}/ask", dependencies=[Depends(ai_rate_limit)])
 async def ask_about_instructor(iid: str, body: AskIn):
     doc = await db.instructors.find_one({"id": iid}, NO_ID)
     if not doc:
@@ -229,7 +259,6 @@ async def add_story(iid: str, body: StoryIn):
     story.update({"id": str(uuid.uuid4()), "instructor_id": iid, "date": datetime.now(timezone.utc).date().isoformat()})
     await db.stories.insert_one(dict(story))
     await db.instructors.update_one({"id": iid}, {"$unset": {"summary": ""}})
-    asyncio.create_task(ensure_summary(iid))
     doc = await get_instructor_or_404(iid)
     return {"story": story, "bodhak_score": doc["bodhak_score"], "story_count": doc["story_count"]}
 
@@ -254,13 +283,13 @@ async def dashboard(iid: str):
     return {"bodhak_score": doc["bodhak_score"], "story_count": doc["story_count"], "rating_by_platform": rating_by_platform, "trend": trend}
 
 
-@api.post("/match")
+@api.post("/match", dependencies=[Depends(ai_rate_limit)])
 async def match(body: GoalIn):
     results, source = await ai_match(body.goal, await all_instructors())
     return {"source": source, "matches": results}
 
 
-@api.post("/platform-search")
+@api.post("/platform-search", dependencies=[Depends(ai_rate_limit)])
 async def platform_search(body: QueryIn):
     results, source = await ai_platform_search(body.query, await all_instructors())
     return {"source": source, "results": results}
@@ -275,8 +304,7 @@ async def leaderboard(skill: Optional[str] = None):
     return [{"rank": n + 1, **d} for n, d in enumerate(docs)]
 
 
-@app.on_event("startup")
-async def seed_on_first_run():
+async def seed_if_needed():
     instructors, stories = build_seed()
     existing = set(await db.instructors.distinct("name"))
     new = [i for i in instructors if i["name"] not in existing]
@@ -289,14 +317,9 @@ async def seed_on_first_run():
     await db.instructors.update_many({"domain": {"$exists": False}}, {"$set": {"domain": "Software & Data"}})
     await db.stories.create_index("instructor_id")
     await db.instructors.create_index("id", unique=True)
-    asyncio.create_task(warm_summaries())
+    await db.rate_limits.create_index("at", expireAfterSeconds=7200)
 
 
 app.include_router(api)
 app.add_middleware(CORSMiddleware, allow_credentials=True, allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
                    allow_methods=["*"], allow_headers=["*"])
-
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    client.close()

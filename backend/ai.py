@@ -1,11 +1,9 @@
-import asyncio
 import json
 import logging
 import os
 import re
-import uuid
 
-from emergentintegrations.llm.chat import LlmChat, UserMessage
+import httpx
 
 log = logging.getLogger("bodhak.ai")
 SYSTEM = "You are Bodhak, a plain-English assistant that helps people pick instructors. Reply with valid JSON only, no prose, no markdown fences."
@@ -19,12 +17,20 @@ def _parse(text):
 
 
 async def llm_json(prompt, timeout=45):
-    key = os.environ.get("EMERGENT_LLM_KEY")
+    key = os.environ.get("GEMINI_API_KEY")
     if not key:
-        raise RuntimeError("EMERGENT_LLM_KEY missing")
-    chat = LlmChat(api_key=key, session_id=str(uuid.uuid4()), system_message=SYSTEM).with_model("anthropic", "claude-opus-5-5")
-    text = await asyncio.wait_for(chat.send_message(UserMessage(text=prompt)), timeout)
-    return _parse(text)
+        raise RuntimeError("GEMINI_API_KEY missing")
+    model = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+    body = {
+        "systemInstruction": {"parts": [{"text": SYSTEM}]},
+        "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+        "generationConfig": {"responseMimeType": "application/json", "thinkingConfig": {"thinkingBudget": 0}},
+    }
+    async with httpx.AsyncClient(timeout=timeout) as http:
+        r = await http.post(f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent",
+                            headers={"x-goog-api-key": key}, json=body)
+        r.raise_for_status()
+    return _parse(r.json()["candidates"][0]["content"]["parts"][0]["text"])
 
 
 def compact(i):
