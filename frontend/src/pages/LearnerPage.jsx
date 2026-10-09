@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { InstructorCard } from "@/components/InstructorCard";
 import { FilterBar } from "@/components/FilterBar";
 import { Thinking } from "@/components/AISummary";
+import { Hero } from "@/components/Hero";
 import { HowCalculated } from "@/components/ScoreBadge";
 import { fetchInstructors, fetchMeta, postMatch } from "@/lib/api";
 
@@ -88,13 +89,13 @@ export default function LearnerPage() {
 
   return (
     <div>
-      <section className="bk-hero" data-testid="learner-hero">
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-10">
-          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 mb-6">
-            <Sparkles className="w-3.5 h-3.5 text-[#6cb4ff]" />For learners
-          </p>
-          <h1 className="bk-h1 !text-white max-w-3xl">Know your teacher <span className="bk-gradient-text">before you enrol.</span></h1>
-          <p className="mt-5 max-w-2xl text-base md:text-lg text-white/70 leading-relaxed">Tell us your goal and we'll match you with the instructors learners actually rate highly, across Udemy, Coursera, upGrad, Great Learning and more.</p>
+      <Hero
+        icon={Sparkles}
+        badge="For learners"
+        title={<>Know your teacher <span className="bk-gradient-text">before you enrol.</span></>}
+        description="Tell us your goal and we'll match you with the instructors learners actually rate highly, across Udemy, Coursera, upGrad, Great Learning and more."
+        testId="learner-hero"
+      >
           <form onSubmit={(e) => { e.preventDefault(); findMatches(); }} className="mt-9 flex flex-col sm:flex-row gap-3 max-w-3xl">
             <div className="relative flex-1">
               <Search className="w-5 h-5 text-[#86868b] absolute left-4 top-1/2 -translate-y-1/2" />
@@ -127,8 +128,7 @@ export default function LearnerPage() {
               </div>
             ))}
           </dl>
-        </div>
-      </section>
+      </Hero>
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14" data-testid="how-it-works">
         <p className="bk-eyebrow mb-2">How it works</p>

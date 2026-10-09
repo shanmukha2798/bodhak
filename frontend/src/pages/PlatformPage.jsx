@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search, Sparkles } from "lucide-react";
+import { Building2, Search, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import { Hero } from "@/components/Hero";
 import { Avatar } from "@/components/InstructorCard";
 import { ScoreBadge } from "@/components/ScoreBadge";
 import { Thinking } from "@/components/AISummary";
@@ -36,24 +37,28 @@ export default function PlatformPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20 space-y-10 fade-in" data-testid="platform-page">
-      <div>
-        <p className="bk-eyebrow mb-3">For edtech platforms</p>
-        <h1 className="bk-h1 max-w-3xl">Find and feature the best instructors for your programs.</h1>
-        <p className="bk-sub mt-4 max-w-2xl">Describe who you need in plain English, compare instructors by what their learners say, and build a shortlist.</p>
-        <form onSubmit={(e) => { e.preventDefault(); search(); }} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-3xl">
+    <div className="fade-in" data-testid="platform-page">
+      <Hero
+        icon={Building2}
+        badge="For edtech platforms"
+        title={<>Find and feature the best instructors <span className="bk-gradient-text">for your programs.</span></>}
+        description="Describe who you need in plain English, compare instructors by what their learners say, and build a shortlist."
+        bottomPad="pb-16"
+        testId="platform-hero"
+      >
+        <form onSubmit={(e) => { e.preventDefault(); search(); }} className="mt-9 flex flex-col sm:flex-row gap-3 max-w-3xl">
           <div className="relative flex-1">
             <Search className="w-5 h-5 text-[#86868b] absolute left-4 top-1/2 -translate-y-1/2" />
-            <input className="bk-input pl-12 py-4 text-base rounded-full" placeholder="Describe the instructor you need" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Describe the instructor you need" data-testid="platform-query-input" />
+            <input className="bk-input pl-12 py-4 text-base rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.25)] border-transparent" placeholder="Describe the instructor you need" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Describe the instructor you need" data-testid="platform-query-input" />
           </div>
-          <button type="submit" className="bk-btn-primary px-7 py-4 text-base" disabled={searching} data-testid="platform-search-button"><Sparkles className="w-4 h-4" />{searching ? "Searching…" : "Find instructors"}</button>
+          <button type="submit" className="bk-btn-primary px-7 py-4 text-base shadow-[0_8px_30px_rgba(0,113,227,0.45)]" disabled={searching} data-testid="platform-search-button"><Sparkles className="w-4 h-4" />{searching ? "Searching…" : "Find instructors"}</button>
         </form>
-        <div className="mt-4 flex flex-wrap gap-2 max-w-3xl">
-          <span className="text-xs text-[#86868b] self-center">Try:</span>
-          {EXAMPLES.map((ex, n) => <button key={ex} type="button" onClick={() => search(ex)} className="bk-chip hover:border-[#0071e3] hover:text-[#0071e3] transition-colors" data-testid={`platform-example-${n}`}>{ex}</button>)}
+        <div className="mt-5 flex flex-wrap gap-2 max-w-3xl">
+          <span className="text-xs text-white/50 self-center">Try:</span>
+          {EXAMPLES.map((ex, n) => <button key={ex} type="button" onClick={() => search(ex)} className="bk-chip-dark" data-testid={`platform-example-${n}`}>{ex}</button>)}
         </div>
-      </div>
-
+      </Hero>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-10">
       <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
         <div className="space-y-6">
           {(searching || result) && (
@@ -86,6 +91,7 @@ export default function PlatformPage() {
           <Leaderboard rows={rows || []} skill={skill} setSkill={setSkill} skills={meta?.skills || []} shortlist={shortlist} loading={isLoading} />
         </div>
         <ShortlistPanel shortlist={shortlist} />
+      </div>
       </div>
     </div>
   );
