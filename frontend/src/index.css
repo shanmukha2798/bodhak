@@ -32,7 +32,7 @@
 
 body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Inter", "Helvetica Neue", sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     color: var(--bk-text);
@@ -101,6 +101,33 @@ body {
     }
     .bk-sub {
         @apply text-base md:text-lg text-[#86868b] leading-relaxed;
+    }
+    .bk-hero {
+        @apply relative overflow-hidden text-white;
+        background:
+            radial-gradient(60% 70% at 85% -10%, rgba(0, 113, 227, 0.45), transparent 70%),
+            radial-gradient(45% 60% at 0% 110%, rgba(124, 92, 255, 0.28), transparent 70%),
+            #0a1628;
+    }
+    .bk-hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%);
+        -webkit-mask-image: radial-gradient(ellipse at 50% 0%, #000 20%, transparent 75%);
+        pointer-events: none;
+    }
+    .bk-gradient-text {
+        background: linear-gradient(90deg, #6cb4ff, #a78bfa);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+    .bk-chip-dark {
+        @apply inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium bg-white/5 text-white/80 border border-white/15 hover:border-white/50 hover:text-white;
+        transition: border-color 0.2s ease, color 0.2s ease;
     }
 }
 

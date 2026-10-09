@@ -14,7 +14,7 @@ export const Avatar = ({ src, name, className = "w-14 h-14" }) => (
 export const InstructorCard = ({ instructor: i, extra, index = 0 }) => (
   <Link
     to={`/instructor/${i.id}`}
-    className="bk-card bk-card-hover p-6 flex flex-col gap-4 fade-up focus:outline-none focus:ring-2 focus:ring-[#0071e3]"
+    className="bk-card bk-card-hover hover:border-[#0071e3]/30 p-6 flex flex-col gap-4 fade-up focus:outline-none focus:ring-2 focus:ring-[#0071e3]"
     style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
     data-testid={`instructor-card-${i.id}`}
   >

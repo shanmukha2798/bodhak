@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Columns2, Search, Sparkles } from "lucide-react";
+import { Columns2, MessageSquareText, Search, Sparkles, Star } from "lucide-react";
 import { toast } from "sonner";
 import { InstructorCard } from "@/components/InstructorCard";
 import { FilterBar } from "@/components/FilterBar";
@@ -14,6 +14,28 @@ const EXAMPLES = [
   "I want to build GenAI apps with LLMs and get a job in six months",
   "I'm a fresher who wants to get into cybersecurity with hands-on labs",
 ];
+
+const STEPS = [
+  { icon: Search, title: "Tell us your goal", text: "Describe what you want to learn in plain English." },
+  { icon: Star, title: "See who learners rate", text: "Every instructor has a Bodhak Score built from real learner stories." },
+  { icon: MessageSquareText, title: "Decide with confidence", text: "Compare teachers side by side before you enrol." },
+];
+
+const CountUp = ({ value = 0 }) => {
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let raf;
+    const start = performance.now();
+    const tick = (t) => {
+      const p = Math.min((t - start) / 900, 1);
+      setN(Math.round(value * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return <>{n}</>;
+};
 
 const MatchReasons = ({ match, reasons }) => (
   <div className="rounded-2xl bg-[#f5f5f7] p-4">
@@ -34,6 +56,13 @@ export default function LearnerPage() {
   const [filters, setFilters] = useState({ sort: "score" });
   const { data: meta } = useQuery({ queryKey: ["meta"], queryFn: fetchMeta });
   const { data: instructors } = useQuery({ queryKey: ["instructors", filters], queryFn: () => fetchInstructors(filters) });
+  const { data: everyone } = useQuery({ queryKey: ["instructors", { sort: "score" }], queryFn: () => fetchInstructors({ sort: "score" }) });
+  const stats = [
+    { label: "Instructors", value: everyone?.length },
+    { label: "Learner stories", value: everyone?.reduce((a, i) => a + i.story_count, 0) },
+    { label: "Domains", value: meta?.domains?.length },
+    { label: "Platforms", value: meta?.platforms?.length },
+  ];
 
   const findMatches = async (text) => {
     const q = (text ?? goal).trim();
@@ -52,32 +81,61 @@ export default function LearnerPage() {
 
   return (
     <div>
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-14" data-testid="learner-hero">
-        <p className="bk-eyebrow mb-4">For learners</p>
-        <h1 className="bk-h1 max-w-3xl">Know your teacher before you enrol.</h1>
-        <p className="bk-sub mt-5 max-w-2xl">Tell us your goal and we'll match you with the instructors learners actually rate highly, across Udemy, Coursera, upGrad, Great Learning and more.</p>
-        <form onSubmit={(e) => { e.preventDefault(); findMatches(); }} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-3xl">
-          <div className="relative flex-1">
-            <Search className="w-5 h-5 text-[#86868b] absolute left-4 top-1/2 -translate-y-1/2" />
-            <input
-              className="bk-input pl-12 py-4 text-base rounded-full"
-              placeholder="Tell us what you want to learn"
-              value={goal}
-              onChange={(e) => setGoal(e.target.value)}
-              aria-label="Tell us what you want to learn"
-              data-testid="goal-input"
-            />
-          </div>
-          <button type="submit" className="bk-btn-primary px-7 py-4 text-base" disabled={matching} data-testid="find-instructor-button">
-            <Sparkles className="w-4 h-4" />{matching ? "Finding your match…" : "Find my instructor"}
-          </button>
-        </form>
-        <div className="mt-4 flex flex-wrap gap-2 max-w-3xl">
-          <span className="text-xs text-[#86868b] self-center">Try:</span>
-          {EXAMPLES.map((ex, n) => (
-            <button key={ex} type="button" onClick={() => findMatches(ex)} className="bk-chip hover:border-[#0071e3] hover:text-[#0071e3] transition-colors text-left" data-testid={`example-prompt-${n}`}>
-              {ex}
+      <section className="bk-hero" data-testid="learner-hero">
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-10">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 mb-6">
+            <Sparkles className="w-3.5 h-3.5 text-[#6cb4ff]" />For learners
+          </p>
+          <h1 className="bk-h1 !text-white max-w-3xl">Know your teacher <span className="bk-gradient-text">before you enrol.</span></h1>
+          <p className="mt-5 max-w-2xl text-base md:text-lg text-white/70 leading-relaxed">Tell us your goal and we'll match you with the instructors learners actually rate highly, across Udemy, Coursera, upGrad, Great Learning and more.</p>
+          <form onSubmit={(e) => { e.preventDefault(); findMatches(); }} className="mt-9 flex flex-col sm:flex-row gap-3 max-w-3xl">
+            <div className="relative flex-1">
+              <Search className="w-5 h-5 text-[#86868b] absolute left-4 top-1/2 -translate-y-1/2" />
+              <input
+                className="bk-input pl-12 py-4 text-base rounded-full shadow-[0_8px_30px_rgba(0,0,0,0.25)] border-transparent"
+                placeholder="Tell us what you want to learn"
+                value={goal}
+                onChange={(e) => setGoal(e.target.value)}
+                aria-label="Tell us what you want to learn"
+                data-testid="goal-input"
+              />
+            </div>
+            <button type="submit" className="bk-btn-primary px-7 py-4 text-base shadow-[0_8px_30px_rgba(0,113,227,0.45)]" disabled={matching} data-testid="find-instructor-button">
+              <Sparkles className="w-4 h-4" />{matching ? "Finding your match…" : "Find my instructor"}
             </button>
+          </form>
+          <div className="mt-5 flex flex-wrap gap-2 max-w-3xl">
+            <span className="text-xs text-white/50 self-center">Try:</span>
+            {EXAMPLES.map((ex, n) => (
+              <button key={ex} type="button" onClick={() => findMatches(ex)} className="bk-chip-dark text-left" data-testid={`example-prompt-${n}`}>
+                {ex}
+              </button>
+            ))}
+          </div>
+          <dl className="mt-14 grid grid-cols-2 md:grid-cols-4 gap-6 border-t border-white/10 pt-8" data-testid="hero-stats">
+            {stats.map((s) => (
+              <div key={s.label}>
+                <dt className="text-xs uppercase tracking-wider text-white/50">{s.label}</dt>
+                <dd className="mt-1 text-3xl sm:text-4xl font-semibold tracking-tight">{s.value != null ? <CountUp value={s.value} /> : "–"}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14" data-testid="how-it-works">
+        <p className="bk-eyebrow mb-2">How it works</p>
+        <h2 className="bk-h2">Three steps to the right teacher</h2>
+        <div className="mt-8 grid md:grid-cols-3 gap-5">
+          {STEPS.map(({ icon: Icon, title, text }, n) => (
+            <div key={title} className="bk-card p-6">
+              <div className="flex items-center gap-3">
+                <span className="w-10 h-10 rounded-full bg-[#e8f2ff] text-[#0071e3] inline-flex items-center justify-center"><Icon className="w-5 h-5" /></span>
+                <span className="text-xs font-semibold text-[#86868b]">STEP {n + 1}</span>
+              </div>
+              <h3 className="mt-4 font-semibold text-[#1d1d1f]">{title}</h3>
+              <p className="mt-1 text-sm text-[#6e6e73] leading-relaxed">{text}</p>
+            </div>
           ))}
         </div>
       </section>
