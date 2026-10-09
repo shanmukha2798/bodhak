@@ -17,6 +17,7 @@ load_dotenv(ROOT_DIR / '.env')
 import asyncio  # noqa: E402
 from seed import build_seed, PLATFORMS, DOMAINS, avatar  # noqa: E402
 from ai import ai_match, ai_platform_search, ai_summary, ai_answer  # noqa: E402
+from matching import embed_texts, profile_text, text_hash  # noqa: E402
 
 _mongo = {}
 
@@ -283,16 +284,45 @@ async def dashboard(iid: str):
     return {"bodhak_score": doc["bodhak_score"], "story_count": doc["story_count"], "rating_by_platform": rating_by_platform, "trend": trend}
 
 
+async def ensure_vectors(instructors):
+    """Return {instructor_id: embedding}, re-embedding only profiles whose text changed."""
+    if not os.environ.get("GEMINI_API_KEY"):
+        return {}
+    stories = defaultdict(list)
+    async for s in db.stories.find({}, NO_ID):
+        stories[s["instructor_id"]].append(s)
+    stored = {d["id"]: d async for d in db.instructor_vectors.find({}, NO_ID)}
+    vectors, stale = {}, []
+    for i in instructors:
+        text = profile_text(i, stories[i["id"]])
+        digest = text_hash(text)
+        if stored.get(i["id"], {}).get("hash") == digest:
+            vectors[i["id"]] = stored[i["id"]]["vec"]
+        else:
+            stale.append((i["id"], text, digest))
+    if stale:
+        try:
+            fresh = await embed_texts([t for _, t, _ in stale], "RETRIEVAL_DOCUMENT")
+            for (iid, _, digest), vec in zip(stale, fresh):
+                vectors[iid] = vec
+                await db.instructor_vectors.update_one({"id": iid}, {"$set": {"hash": digest, "vec": vec}}, upsert=True)
+        except Exception as e:
+            logger.warning("embedding refresh failed: %s", e)
+    return vectors
+
+
 @api.post("/match", dependencies=[Depends(ai_rate_limit)])
 async def match(body: GoalIn):
-    results, source = await ai_match(body.goal, await all_instructors())
-    return {"source": source, "matches": results}
+    docs = await all_instructors()
+    results, source, meta = await ai_match(body.goal, docs, await ensure_vectors(docs))
+    return {"source": source, "matches": results, **meta}
 
 
 @api.post("/platform-search", dependencies=[Depends(ai_rate_limit)])
 async def platform_search(body: QueryIn):
-    results, source = await ai_platform_search(body.query, await all_instructors())
-    return {"source": source, "results": results}
+    docs = await all_instructors()
+    results, source, meta = await ai_platform_search(body.query, docs, await ensure_vectors(docs))
+    return {"source": source, "results": results, **meta}
 
 
 @api.get("/leaderboard")
@@ -318,6 +348,7 @@ async def seed_if_needed():
     await db.stories.create_index("instructor_id")
     await db.instructors.create_index("id", unique=True)
     await db.rate_limits.create_index("at", expireAfterSeconds=7200)
+    await db.instructor_vectors.create_index("id", unique=True)
 
 
 app.include_router(api)

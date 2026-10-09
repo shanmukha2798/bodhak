@@ -37,6 +37,13 @@ const CountUp = ({ value = 0 }) => {
   return <>{n}</>;
 };
 
+const UNDERSTOOD_LABELS = {
+  mode: (v) => `Format: ${v}`,
+  level: (v) => `Level: ${v === "working" ? "working professional" : v}`,
+  domain: (v) => `Domain: ${v}`,
+  min_years: (v) => `Experience: ${v}+ yrs`,
+};
+
 const MatchReasons = ({ match, reasons }) => (
   <div className="rounded-2xl bg-[#f5f5f7] p-4">
     <div className="flex items-center justify-between mb-2">
@@ -147,6 +154,12 @@ export default function LearnerPage() {
             <h2 className="bk-h2">Your top 3 instructors</h2>
             <p className="bk-sub mt-2 max-w-2xl">Based on your goal: <span className="text-[#1d1d1f] font-medium">"{goal}"</span></p>
             {matching && <div className="mt-8"><Thinking text="Reading your goal and comparing instructors…" /></div>}
+            {!matching && result?.understood && Object.keys(result.understood).length > 0 && (
+              <div className="mt-4 flex flex-wrap items-center gap-2" data-testid="understood-chips">
+                <span className="text-xs text-[#86868b]">We understood:</span>
+                {Object.entries(result.understood).map(([k, v]) => UNDERSTOOD_LABELS[k] && <span key={k} className="bk-chip-blue">{UNDERSTOOD_LABELS[k](v)}</span>)}
+              </div>
+            )}
             {!matching && result && (
               <>
                 <div className="mt-8 grid md:grid-cols-3 gap-5">
